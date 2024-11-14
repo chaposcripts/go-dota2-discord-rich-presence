@@ -1,2 +1,3 @@
 `go get github.com/hugolgst/rich-go`  
-`go build && go-dota-drpc.exe`
+`go get github.com/getlantern/systray`  
+`go build -ldflags -H=windowsgui && go-dota-drpc.exe`
