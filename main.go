@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/getlantern/systray"
 )
@@ -13,6 +14,7 @@ const (
 )
 
 var checkbox *systray.MenuItem
+var lastUpdate time.Time
 
 func onReady() {
 	systray.SetTemplateIcon(logo, logo)
@@ -44,5 +46,13 @@ func main() {
 	go systray.Run(onReady, func() {})
 	fmt.Println("Started, connecting to discord...")
 	LogIn(discordApplicationID, true)
-	HandleGSI(port)
+	go HandleGSI(port)
+	for {
+		time.Sleep(5 * time.Second)
+		if loggedIn && time.Now().Unix()-lastUpdate.Unix() > 20 {
+			LogOut()
+			fmt.Println("Logged out (no new updates in 20 seconds)")
+			ShowToast("Rich Presence disabled", "No game information received in past 20 seconds. Rich presence was automatically disabled!")
+		}
+	}
 }

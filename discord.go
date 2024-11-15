@@ -18,7 +18,7 @@ func LogIn(clientId string, showNotification bool) error {
 	if err == nil {
 		loggedIn = true
 		if showNotification {
-			ShowMessageBox("Dota2 Discord Rich Presence", "Connected to discord!\nYou can close/disable app in system tray!\nt.me/chaposcripts")
+			ShowMessageBox("Dota2 Discord Rich Presence", "Connected to discord!\nYou can close/disable app in system tray!\nt.me/chaposcripts", MessageBoxTypeOk)
 		}
 	}
 	return err
@@ -34,7 +34,14 @@ func LogOut() error {
 }
 
 func Update(activity DotaGsiRequest) {
-	timestamp := time.Unix(time.Now().Unix()-int64(activity.Map.ClockTime), 0)
+	if !loggedIn {
+		LogIn(discordApplicationID, false)
+		fmt.Println("Logging in...")
+		return
+	}
+
+	timestamp := time.Unix(time.Now().Unix()-int64(activity.Map.ClockTime), 0) //time.Unix(time.Now().Unix()-int64(activity.Map.ClockTime), 0)
+	// fmt.Println("TIMESTAMP", timestamp.Unix(), "MapClock", activity.Map.ClockTime, "NOW", time.Now().Unix())
 	var settings client.Activity
 	if len(activity.Map.GameState) > 0 {
 		var isInGame = activity.Map.GameState == string(DotaGameStateTeamShowcase) || activity.Map.GameState == string(DotaGameStateGameInProgress) || activity.Map.GameState == string(DotaGameStatePreGame)
@@ -64,4 +71,5 @@ func Update(activity DotaGsiRequest) {
 		}
 	}
 	client.SetActivity(settings)
+	lastUpdate = time.Now()
 }
