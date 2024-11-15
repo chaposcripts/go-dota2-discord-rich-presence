@@ -1,5 +1,5 @@
 ## Installation  
-1. download the dota-rich-presence archive.zip on GitHub Releases
+1. download [last release](https://github.com/chaposcripts/go-dota2-discord-rich-presence/releases)
 2. Put `gamestate_integration_d2drp.cfg` file from the archive to the `STEAM\steamapps\common\dota 2 beta\game\dota\cfg\gamestate_integration` folder
 3. unpack and run `dota2-discord-rich-presence.exe`
 
