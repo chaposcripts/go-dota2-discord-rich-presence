@@ -16,7 +16,7 @@ type Map struct {
 	NightstalkerNight    bool   `json:"nightstalker_night"`
 	RadiantScore         int    `json:"radiant_score"`
 	DireScore            int    `json:"dire_score"`
-	GameWtate            string `json:"game_state"`
+	GameState            string `json:"game_state"`
 	Paused               bool   `json:"paused"`
 	WinTeam              string `json:"win_team"`
 	CustomGameName       string `json:"customgamename"`
@@ -114,9 +114,47 @@ type Items map[string]Item
 
 type DotaGsiRequest struct {
 	Provider  Provider  `json:"provider"`
-	Map       Map       `json:"map"`
-	Player    Player    `json:"player"`
-	Hero      Hero      `json:"hero"`
-	Abilities Abilities `json:"abilities"`
-	Items     Items     `json:"items"`
+	Map       Map       `json:"map,omitempty"`
+	Player    Player    `json:"player,omitempty"`
+	Hero      Hero      `json:"hero,omitempty"`
+	Abilities Abilities `json:"abilities,omitempty"`
+	Items     Items     `json:"items,omitempty"`
+}
+
+type DotaGameState string
+
+const (
+	DotaGameStateDisconnected         DotaGameState = "DOTA_GAMERULES_STATE_DISCONNECTED"
+	DotaGameStateGameInProgress       DotaGameState = "DOTA_GAMERULES_STATE_GAME_IN_PROGRESS"
+	DotaGameStateStrategyTime         DotaGameState = "DOTA_GAMERULES_STATE_STRATEGY_TIME"
+	DotaGameStateWaitForPlayersToLoad DotaGameState = "DOTA_GAMERULES_STATE_WAIT_FOR_PLAYERS_TO_LOAD"
+	DotaGameStateInit                 DotaGameState = "DOTA_GAMERULES_STATE_INIT"
+	DotaGameStateWaitForMapToLoad     DotaGameState = "DOTA_GAMERULES_STATE_WAIT_FOR_MAP_TO_LOAD"
+	DotaGameStateHeroSelection        DotaGameState = "DOTA_GAMERULES_STATE_HERO_SELECTION"
+	DotaGameStatePostGame             DotaGameState = "DOTA_GAMERULES_STATE_POST_GAME"
+	DotaGameStatePreGame              DotaGameState = "DOTA_GAMERULES_STATE_PRE_GAME"
+	DotaGameStateTeamShowcase         DotaGameState = "DOTA_GAMERULES_STATE_TEAM_SHOWCASE"
+)
+
+var DotaGameStateLabel map[DotaGameState]string = map[DotaGameState]string{
+	DotaGameStateDisconnected:         "In menu",
+	DotaGameStateGameInProgress:       "In match",
+	DotaGameStateStrategyTime:         "Strategy discussion",
+	DotaGameStateWaitForPlayersToLoad: "Waiting for players",
+	DotaGameStateInit:                 "Initializing",
+	DotaGameStateWaitForMapToLoad:     "Loading to map",
+	DotaGameStateHeroSelection:        "Hero selection",
+	DotaGameStatePostGame:             "Ending match",
+	DotaGameStatePreGame:              "Pre-Game",
+}
+
+var DotaGameStateImage map[DotaGameState]string = map[DotaGameState]string{
+	DotaGameStateDisconnected:         ImageDotaLogo,
+	DotaGameStateGameInProgress:       "",
+	DotaGameStateStrategyTime:         ImageDotaMap,
+	DotaGameStateWaitForPlayersToLoad: ImageDotaLoading,
+	DotaGameStateInit:                 ImageDotaLoading,
+	DotaGameStateWaitForMapToLoad:     ImageDotaLoading,
+	DotaGameStateHeroSelection:        ImageDotaLoading,
+	DotaGameStatePostGame:             ImageDotaLoading,
 }

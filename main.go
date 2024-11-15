@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"time"
 
 	"github.com/getlantern/systray"
 )
@@ -11,14 +10,12 @@ import (
 const (
 	port                 string = "3388"
 	discordApplicationID string = "751932819676332042"
-	baseImageUrl         string = "https://www.dotabuff.com/assets/heroes/%s.jpg" //"https://cdn.akamai.steamstatic.com/apps/dota2/images/dota_react/heroes"
-	errorImageUrl        string = ""
 )
 
-var activity DotaGsiRequest
 var checkbox *systray.MenuItem
 
 func onReady() {
+	systray.SetTemplateIcon(logo, logo)
 	systray.SetTitle("Dota2 Discord Rich Presence")
 	systray.SetTooltip("Dota2 Discord Rich Presence\nt.me/chaposcripts")
 	checkbox = systray.AddMenuItemCheckbox("Enabled", "Toggle status", true)
@@ -30,13 +27,13 @@ func onReady() {
 				LogOut()
 			} else {
 				checkbox.Check()
-				LogIn(discordApplicationID)
+				LogIn(discordApplicationID, false)
 			}
 		}
 	}()
-	mQuitOrig := systray.AddMenuItem("Quit", "Quit")
+	quitButton := systray.AddMenuItem("Quit", "Quit")
 	go func() {
-		<-mQuitOrig.ClickedCh
+		<-quitButton.ClickedCh
 		fmt.Println("Closing the application...")
 		systray.Quit()
 		os.Exit(0)
@@ -46,17 +43,6 @@ func onReady() {
 func main() {
 	go systray.Run(onReady, func() {})
 	fmt.Println("Started, connecting to discord...")
-
-	LogIn(discordApplicationID)
-
+	LogIn(discordApplicationID, true)
 	HandleGSI(port)
-	for {
-		if checkbox.Checked() {
-			fmt.Println("Updating RP...")
-			Update()
-		} else {
-			fmt.Println("Skipping update (disabled)")
-		}
-		time.Sleep(5 * time.Second)
-	}
 }

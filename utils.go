@@ -2,14 +2,13 @@ package main
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 	"unicode"
 )
 
 func getHeroImageUrl(heroName string) string {
-	heroImageUrl := fmt.Sprintf(baseImageUrl, strings.ReplaceAll(strings.TrimPrefix(heroName, "npc_dota_hero_"), "_", "-"))
-	fmt.Println("IMAGE URL:", heroName, heroImageUrl)
-	return heroImageUrl
+	return fmt.Sprintf(baseImageUrl, heroName)
 }
 
 func fixName(name string) string {
@@ -19,14 +18,14 @@ func fixName(name string) string {
 	return titleCase(result)
 }
 
-func getItemsAsString() string {
-	var items []string
-	for _, item := range activity.Items {
+func getItemsAsString(items Items) string {
+	var itemsNamesList []string
+	for _, item := range items {
 		if item.Name != "empty" && item.Name != "item_tpscroll" {
-			items = append(items, fixName(item.Name))
+			itemsNamesList = append(itemsNamesList, strings.ReplaceAll(fixName(item.Name), "Item ", ""))
 		}
 	}
-	return strings.Join(items, ", ")
+	return strings.Join(itemsNamesList, ", ")
 }
 
 func titleCase(s string) string {
@@ -35,4 +34,14 @@ func titleCase(s string) string {
 		words[i] = string(unicode.ToUpper(rune(word[0]))) + strings.ToLower(word[1:])
 	}
 	return strings.Join(words, " ")
+}
+
+func HasField(v interface{}, fieldName string) bool {
+	val := reflect.ValueOf(v)
+	typ := val.Type()
+	if typ.Kind() != reflect.Struct {
+		return false
+	}
+	field := val.FieldByName(fieldName)
+	return field.IsValid()
 }
