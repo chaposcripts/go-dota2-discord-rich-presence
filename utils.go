@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"reflect"
 	"strings"
 	"unicode"
 )
@@ -20,8 +19,9 @@ func fixName(name string) string {
 
 func getItemsAsString(items Items) string {
 	var itemsNamesList []string
-	for _, item := range items {
-		if item.Name != "empty" && item.Name != "item_tpscroll" {
+	for slot := 0; slot < 8; slot++ {
+		item, exists := items["slot"+string(slot)]
+		if exists && item.Name != "empty" {
 			itemsNamesList = append(itemsNamesList, strings.ReplaceAll(fixName(item.Name), "Item ", ""))
 		}
 	}
@@ -34,14 +34,4 @@ func titleCase(s string) string {
 		words[i] = string(unicode.ToUpper(rune(word[0]))) + strings.ToLower(word[1:])
 	}
 	return strings.Join(words, " ")
-}
-
-func HasField(v interface{}, fieldName string) bool {
-	val := reflect.ValueOf(v)
-	typ := val.Type()
-	if typ.Kind() != reflect.Struct {
-		return false
-	}
-	field := val.FieldByName(fieldName)
-	return field.IsValid()
 }

@@ -9,6 +9,7 @@ import (
 )
 
 const (
+	version              string = "1.3"
 	port                 string = "3388"
 	discordApplicationID string = "751932819676332042"
 )

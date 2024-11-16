@@ -6,6 +6,7 @@ const (
 	ImageDotaMap           string = "https://static.wikia.nocookie.net/dota2_gamepedia/images/7/70/Game_map_7.33.jpg/revision/latest/scale-to-width-down/128"
 	ImageDotaHeroSelection string = "https://github.com/chaposcripts/go-dota2-discord-rich-presence/blob/main/assets/loading.gif?raw=true"
 	ImageDotaLoading       string = "https://github.com/chaposcripts/go-dota2-discord-rich-presence/blob/main/assets/loading.gif?raw=true"
+	ImageDotaPostgame      string = "https://github.com/chaposcripts/go-dota2-discord-rich-presence/blob/main/assets/finish.gif?raw=true"
 )
 
 /*

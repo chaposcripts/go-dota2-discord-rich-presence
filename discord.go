@@ -20,6 +20,10 @@ func LogIn(clientId string, showNotification bool) error {
 		if showNotification {
 			ShowMessageBox("Dota2 Discord Rich Presence", "Connected to discord!\nYou can close/disable app in system tray!\nt.me/chaposcripts", MessageBoxTypeOk)
 		}
+	} else {
+		if showNotification {
+			ShowMessageBox("Dota2 Discord Rich Presence // Error", "Error connecting to Discord:\n"+err.Error(), MessageBoxTypeOk)
+		}
 	}
 	return err
 }
@@ -40,35 +44,52 @@ func Update(activity DotaGsiRequest) {
 		return
 	}
 
-	timestamp := time.Unix(time.Now().Unix()-int64(activity.Map.ClockTime), 0) //time.Unix(time.Now().Unix()-int64(activity.Map.ClockTime), 0)
-	// fmt.Println("TIMESTAMP", timestamp.Unix(), "MapClock", activity.Map.ClockTime, "NOW", time.Now().Unix())
-	var settings client.Activity
+	var timestamp time.Time = time.Unix(time.Now().Unix()-int64(activity.Map.ClockTime), 0)
+	var settings client.Activity = client.Activity{}
 	if len(activity.Map.GameState) > 0 {
-		var isInGame = activity.Map.GameState == string(DotaGameStateTeamShowcase) || activity.Map.GameState == string(DotaGameStateGameInProgress) || activity.Map.GameState == string(DotaGameStatePreGame)
-		if isInGame {
-			settings = client.Activity{
-				State:      fmt.Sprintf("%d / %d / %d", activity.Player.Kills, activity.Player.Deaths, activity.Player.Assists),
-				Details:    fmt.Sprintf("%s (LVL: %d)", fixName(activity.Hero.Name), activity.Hero.Level),
-				LargeImage: getHeroImageUrl(activity.Hero.Name),
-				LargeText:  getItemsAsString(activity.Items),
-				SmallImage: ImageDotaLogo,
-				SmallText:  fmt.Sprintf("Radiant/Dire: %d/%d\nMatch ID: %s\nPlaying for %s", activity.Map.RadiantScore, activity.Map.DireScore, activity.Map.MatchID, activity.Player.TeamName),
-				Timestamps: &client.Timestamps{
-					Start: &timestamp,
-				},
+		settings.SmallImage = ImageDotaLogo
+		// var isInGame = activity.Map.GameState == string(DotaGameStateTeamShowcase) || activity.Map.GameState == string(DotaGameStateGameInProgress)
+		switch activity.Map.GameState {
+		case string(DotaGameStatePostGame):
+			var endGameText string = "Loose"
+			if activity.Player.TeamName == "radiant" && activity.Map.RadiantScore > activity.Map.DireScore {
+				endGameText = "Won"
 			}
-		} else {
-			settings = client.Activity{
-				State:      DotaGameStateLabel[DotaGameState(activity.Map.GameState)],
-				LargeImage: DotaGameStateImage[DotaGameState(activity.Map.GameState)],
-				SmallImage: ImageDotaLogo,
+			settings.Details = fmt.Sprintf("%s (%d - %d)", endGameText, activity.Map.RadiantScore, activity.Map.DireScore)
+			settings.LargeImage = ImageDotaPostgame
+		case string(DotaGameStatePreGame):
+			settings.State = "Pre-Game"
+			settings.Details = fixName(activity.Hero.Name)
+			settings.LargeImage = getHeroImageUrl(activity.Hero.Name)
+		case string(DotaGameStateTeamShowcase), string(DotaGameStateGameInProgress):
+			settings.State = fmt.Sprintf("%d / %d / %d", activity.Player.Kills, activity.Player.Deaths, activity.Player.Assists)
+			settings.Details = fmt.Sprintf("%s (LVL: %d)", fixName(activity.Hero.Name), activity.Hero.Level)
+			settings.LargeImage = getHeroImageUrl(activity.Hero.Name)
+			settings.LargeText = getItemsAsString(activity.Items)
+			settings.SmallText = fmt.Sprintf("Match ID: %s\nPlaying for %s (%d - %d)", activity.Map.MatchID, activity.Player.TeamName, activity.Map.RadiantScore, activity.Map.DireScore)
+			settings.Timestamps = &client.Timestamps{
+				Start: &timestamp,
 			}
+		case string(DotaGameStateHeroSelection):
+			settings.Details = "Hero Selection"
+			settings.LargeImage = ImageDotaLoading
+		case string(DotaGameStateStrategyTime):
+			settings.Details = "Strategy discussion"
+			settings.LargeImage = ImageDotaMap
+		case string(DotaGameStateWaitForMapToLoad):
+			settings.Details = "Loading on map..."
+			settings.LargeImage = ImageDotaLoading
+		case string(DotaGameStateWaitForPlayersToLoad):
+			settings.Details = "Waiting for players..."
+			settings.LargeImage = ImageDotaLoading
+		default:
+			settings.Details = "Unknown action:"
+			settings.State = activity.Map.GameState
+			settings.LargeImage = ImageDotaLogo
 		}
 	} else {
-		settings = client.Activity{
-			Details:    "In Main Menu",
-			LargeImage: ImageDotaLogo,
-		}
+		settings.Details = "In Main Menu"
+		settings.LargeImage = ImageDotaLogo
 	}
 	client.SetActivity(settings)
 	lastUpdate = time.Now()
